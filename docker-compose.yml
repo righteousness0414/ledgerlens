@@ -1,0 +1,17 @@
+# Optional Postgres for LedgerLens.
+# The backend defaults to SQLite (zero infra) — you only need this if you set
+# DATABASE_URL to the Postgres URL below in backend/.env.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ledgerlens
+      POSTGRES_PASSWORD: ledgerlens
+      POSTGRES_DB: ledgerlens
+    ports:
+      - "5432:5432"
+    volumes:
+      - ledgerlens_pg:/var/lib/postgresql/data
+
+volumes:
+  ledgerlens_pg:

@@ -65,6 +65,8 @@ the rules are unsure.
 
 ## Screenshots
 
+> _Screenshots and the demo GIF are captured from a local run; placeholders until added to `docs/`._
+
 | Upload | Side-by-side review |
 | ------ | ------------------- |
 | ![upload](docs/01-upload.png) | ![review](docs/02-review.png) |
@@ -163,17 +165,21 @@ audit_log
 ## API surface
 
 ```
-POST   /documents                      upload file → returns document_id, triggers extraction
+POST   /documents                      upload file → returns document_id + fields, triggers extraction
 GET    /documents                      list with status
 GET    /documents/{id}                 status + extracted fields + confidence
+GET    /documents/{id}/file            original document (for the side-by-side pane)
 PATCH  /documents/{id}/fields/{fid}    correct a field value (writes audit_log)
 POST   /documents/{id}/approve         mark approved (writes audit_log)
-GET    /documents/{id}/export?format=csv|xlsx   download approved data
+GET    /documents/{id}/export?format=csv|xlsx   download data
+GET    /health                         provider + status
 
 # stubbed (return mock responses)
 POST   /auth/login                     mock auth
 POST   /documents/{id}/sync/quickbooks mock QBO posting
 ```
+
+Interactive OpenAPI docs are served at `http://localhost:8000/docs`.
 
 ---
 
@@ -182,47 +188,66 @@ POST   /documents/{id}/sync/quickbooks mock QBO posting
 ```
 ledgerlens/
 ├── README.md
-├── docker-compose.yml       ← postgres
-├── samples/                 ← synthetic invoices (PDF/PNG)
-├── docs/                    ← screenshots, demo.gif
+├── SPEC.md                  ← internal build spec
+├── docker-compose.yml       ← optional postgres
 ├── backend/
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── api/             ← route handlers
-│   │   ├── services/        ← extraction, confidence, validation, export
-│   │   ├── models/          ← SQLAlchemy models
-│   │   └── schemas/         ← pydantic
+│   │   ├── main.py          ← FastAPI app, CORS, init_db, routers
+│   │   ├── models.py        ← SQLAlchemy models
+│   │   ├── schemas.py       ← pydantic I/O
+│   │   ├── api/             ← documents (core loop) + stubs (auth, QBO)
+│   │   └── services/
+│   │       ├── extraction/  ← provider abstraction: mock|claude|openai|google_vision
+│   │       ├── validation.py    ← deterministic rule checks
+│   │       ├── confidence.py     ← model × validation → final_confidence + flagged
+│   │       ├── export.py         ← CSV / Excel
+│   │       └── storage.py        ← local disk (S3-swappable interface)
+│   ├── scripts/seed_samples.py   ← synthetic invoice generator
+│   ├── samples/             ← generated synthetic invoices (PDF/PNG + sidecar)
 │   ├── requirements.txt
 │   └── .env.example
 └── frontend/
     ├── app/
-    ├── components/          ← UploadZone, ReviewSplit, FieldRow, LineItemsTable, ExportButton
-    ├── package.json
-    └── .env.example
+    │   ├── page.tsx               ← upload + document list
+    │   └── review/[id]/page.tsx   ← side-by-side review (the showpiece)
+    ├── lib/api.ts                 ← backend client
+    └── .env.local.example
 ```
 
 ---
 
 ## Run locally
 
-```bash
-# Database
-docker compose up -d postgres
+No infrastructure required — the backend defaults to **SQLite** and the **`mock`** extractor,
+so the full loop runs offline with zero API keys.
 
+```bash
 # Backend
 cd backend
-cp .env.example .env          # add LLM API key, DB url, confidence threshold
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+cp .env.example .env                 # defaults: EXTRACTION_PROVIDER=mock, SQLite
+python scripts/seed_samples.py       # generate synthetic invoices into backend/samples/
+uvicorn app.main:app --reload        # creates tables on startup → http://localhost:8000
 
-# Frontend
+# Frontend (separate terminal)
 cd frontend
-cp .env.example .env.local
+cp .env.local.example .env.local
 npm install
-npm run dev
+npm run dev                          # → http://localhost:3000
 ```
 
-Open `http://localhost:3000`, upload a sample from `samples/`, and walk the full loop.
+Open `http://localhost:3000`, upload a sample from `backend/samples/`, and walk the full loop:
+upload → review the flagged low-confidence fields → correct → approve → export.
+
+**Swapping the extractor.** Set `EXTRACTION_PROVIDER` in `backend/.env` to one of
+`mock | claude | openai | google_vision` and provide the matching credential
+(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_APPLICATION_CREDENTIALS`). Install the
+provider's SDK from the optional block in `requirements.txt`. `google_vision` reproduces the
+production family-business pipeline (Cloud Vision OCR + deterministic field parsing).
+
+**Postgres (optional).** `docker compose up -d postgres`, then set `DATABASE_URL` in
+`backend/.env` to the Postgres URL shown in `.env.example`.
 
 ---
 

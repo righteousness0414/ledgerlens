@@ -16,3 +16,20 @@ CLAUDE.local.md
 *.key
 *.pem
 credentials*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# LedgerLens runtime
+backend/storage/
+*.db
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+frontend/.env.local

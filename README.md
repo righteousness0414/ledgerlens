@@ -16,7 +16,7 @@ clients most often ask for, so the approach can be inspected end to end.
 > ⚠️ **Demo data only.** Every sample document in this repo is synthetic. No real client, company, or
 > financial data is included anywhere.
 
-![demo](docs/demo.gif)
+![LedgerLens side-by-side review — original document on the left, extracted fields with per-field confidence on the right, the one low-confidence field flagged in red](docs/review.png)
 
 ---
 
@@ -65,15 +65,17 @@ the rules are unsure.
 
 ## Screenshots
 
-> _Screenshots and the demo GIF are captured from a local run; placeholders until added to `docs/`._
+> _Captured from a local run with the `mock` extractor and the synthetic samples in `backend/samples/`._
 
-| Upload | Side-by-side review |
-| ------ | ------------------- |
-| ![upload](docs/01-upload.png) | ![review](docs/02-review.png) |
+**Upload + document list** — drop a PDF/image, watch it move through `extracted → approved`.
 
-| Flagged low-confidence fields | CSV / Excel export |
-| ----------------------------- | ------------------ |
-| ![confidence](docs/03-confidence.png) | ![export](docs/04-export.png) |
+![Upload and document list](docs/home.png)
+
+**Side-by-side review** — the original on the left, editable fields on the right. Every field shows
+its final confidence; the one field below the threshold (`INVOICE NUMBER`, 72%) is flagged in red and
+surfaced first. Approve and export to CSV / Excel from the top-right.
+
+![Side-by-side review with a flagged low-confidence field](docs/review.png)
 
 ---
 

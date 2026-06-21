@@ -1,0 +1,15 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-multipart==0.0.20
+openpyxl==3.1.5
+python-dateutil==2.9.0.post0
+
+# Optional drivers / providers — install as needed for your deployment.
+# psycopg2-binary==2.9.10        # PostgreSQL
+# anthropic==0.42.0              # EXTRACTION_PROVIDER=claude
+# openai==1.59.0                # EXTRACTION_PROVIDER=openai
+# google-cloud-vision==3.10.0   # EXTRACTION_PROVIDER=google_vision
+# reportlab==4.2.5              # regenerating synthetic PDF samples (scripts/seed_samples.py)

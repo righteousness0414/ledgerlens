@@ -12,11 +12,22 @@ import {
   exportUrl,
   getDocument,
 } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
-function confidenceColor(c: number): string {
-  if (c >= 0.85) return "text-green-700 bg-green-50";
-  if (c >= 0.5) return "text-amber-700 bg-amber-50";
-  return "text-red-700 bg-red-50";
+function confidenceClass(c: number): string {
+  if (c >= 0.85) return "border-green-200 bg-green-50 text-green-700";
+  if (c >= 0.5) return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-red-200 bg-red-50 text-red-700";
 }
 
 function FieldRow({
@@ -44,44 +55,40 @@ function FieldRow({
   };
 
   return (
-    <div
-      className={`rounded-lg border p-3 ${
-        field.flagged ? "border-red-300 bg-red-50/40" : "border-gray-200"
-      }`}
+    <Card
+      className={cn(
+        "gap-0 p-3",
+        field.flagged && "border-red-300 bg-red-50/40",
+      )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {field.key.replace(/_/g, " ")}
         </span>
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-semibold ${confidenceColor(
-            field.final_confidence,
-          )}`}
+        <Badge
+          variant="outline"
+          className={cn("font-semibold", confidenceClass(field.final_confidence))}
           title={`model ${field.model_confidence.toFixed(
             2,
           )} · validation ${field.validation_status}`}
         >
           {(field.final_confidence * 100).toFixed(0)}%
-        </span>
+        </Badge>
       </div>
 
       <div className="mt-2">
         {editing ? (
           <div className="flex gap-2">
-            <input
+            <Input
               autoFocus
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && save()}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="h-8 flex-1"
             />
-            <button
-              onClick={save}
-              disabled={saving}
-              className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
+            <Button size="sm" onClick={save} disabled={saving}>
               {saving ? "…" : "Save"}
-            </button>
+            </Button>
           </div>
         ) : (
           <button
@@ -89,24 +96,26 @@ function FieldRow({
               setValue(field.effective_value ?? "");
               setEditing(true);
             }}
-            className="w-full rounded px-2 py-1 text-left text-sm text-gray-900 hover:bg-gray-100"
+            className="w-full rounded px-2 py-1 text-left text-sm hover:bg-muted"
           >
             {field.effective_value || (
-              <span className="text-gray-400">— (click to set)</span>
+              <span className="text-muted-foreground">— (click to set)</span>
             )}
           </button>
         )}
       </div>
 
       {field.validation_message && field.validation_status === "fail" && (
-        <p className="mt-1 text-xs text-red-600">⚠ {field.validation_message}</p>
+        <p className="mt-1 text-xs text-destructive">
+          ⚠ {field.validation_message}
+        </p>
       )}
       {field.corrected_value !== null && (
         <p className="mt-1 text-xs text-blue-600">
           corrected by {field.corrected_by}
         </p>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -154,12 +163,16 @@ export default function ReviewPage() {
 
   if (error)
     return (
-      <main className="mx-auto max-w-3xl p-10 text-sm text-red-700">
+      <main className="mx-auto max-w-3xl p-10 text-sm text-destructive">
         {error}
       </main>
     );
   if (!doc)
-    return <main className="mx-auto max-w-3xl p-10 text-gray-400">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-3xl p-10 text-muted-foreground">
+        Loading…
+      </main>
+    );
 
   const isImage = doc.mime_type.startsWith("image/");
 
@@ -167,43 +180,45 @@ export default function ReviewPage() {
     <main className="mx-auto max-w-6xl px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <Link href="/" className="text-sm text-blue-600 hover:underline">
+          <Link href="/" className="text-sm text-primary hover:underline">
             ← Documents
           </Link>
-          <h1 className="mt-1 text-xl font-semibold text-gray-900">
+          <h1 className="mt-1 text-xl font-semibold tracking-tight">
             {doc.filename}
           </h1>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             #{doc.id} · {doc.provider}/{doc.model} · status {doc.status} ·{" "}
             {doc.flagged_count} flagged
           </p>
         </div>
         <div className="flex gap-2">
-          <a
-            href={exportUrl(doc.id, "csv")}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          <Button
+            variant="outline"
+            size="sm"
+            render={<a href={exportUrl(doc.id, "csv")} />}
           >
             Export CSV
-          </a>
-          <a
-            href={exportUrl(doc.id, "xlsx")}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<a href={exportUrl(doc.id, "xlsx")} />}
           >
             Export Excel
-          </a>
-          <button
+          </Button>
+          <Button
             onClick={approve}
             disabled={doc.status === "approved"}
-            className="rounded bg-green-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            className="bg-green-600 text-white hover:bg-green-700"
           >
             {doc.status === "approved" ? "Approved ✓" : "Approve"}
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left: original document */}
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-2">
+        <Card className="bg-muted/40 p-2">
           {isImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -218,7 +233,7 @@ export default function ReviewPage() {
               className="h-[70vh] w-full rounded"
             />
           )}
-        </div>
+        </Card>
 
         {/* Right: editable fields, flagged first */}
         <div className="space-y-3">
@@ -234,26 +249,26 @@ export default function ReviewPage() {
             ))}
 
           {doc.line_items.length > 0 && (
-            <div className="rounded-lg border border-gray-200 p-3">
-              <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+            <Card className="gap-0 p-3">
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Line items
               </h3>
-              <table className="w-full text-sm">
-                <tbody>
+              <Table>
+                <TableBody>
                   {doc.line_items.map((li) => (
-                    <tr key={li.id} className="border-t border-gray-100">
-                      <td className="py-1 text-gray-700">{li.description}</td>
-                      <td className="py-1 text-right text-gray-500">
+                    <TableRow key={li.id}>
+                      <TableCell>{li.description}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
                         {li.qty ?? ""}
-                      </td>
-                      <td className="py-1 text-right text-gray-900">
+                      </TableCell>
+                      <TableCell className="text-right">
                         {li.amount?.toFixed(2) ?? ""}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </Card>
           )}
         </div>
       </div>

@@ -3,14 +3,17 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { DocumentSummary, listDocuments, uploadDocument } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
-  approved: "bg-green-100 text-green-800",
-  reviewed: "bg-blue-100 text-blue-800",
-  extracted: "bg-amber-100 text-amber-800",
-  processing: "bg-gray-100 text-gray-700",
-  failed: "bg-red-100 text-red-800",
-  uploaded: "bg-gray-100 text-gray-700",
+  approved: "border-green-200 bg-green-50 text-green-700",
+  reviewed: "border-blue-200 bg-blue-50 text-blue-700",
+  extracted: "border-amber-200 bg-amber-50 text-amber-700",
+  processing: "border-gray-200 bg-gray-50 text-gray-600",
+  failed: "border-red-200 bg-red-50 text-red-700",
+  uploaded: "border-gray-200 bg-gray-50 text-gray-600",
 };
 
 export default function Home() {
@@ -53,8 +56,8 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">LedgerLens</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold tracking-tight">LedgerLens</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Upload an invoice → extract fields with confidence → review &amp;
           correct → approve → export.
         </p>
@@ -71,11 +74,12 @@ export default function Home() {
           setDragOver(false);
           handleFiles(e.dataTransfer.files);
         }}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-12 text-center transition ${
+        className={cn(
+          "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-12 text-center transition",
           dragOver
-            ? "border-blue-400 bg-blue-50"
-            : "border-gray-300 bg-gray-50 hover:border-gray-400"
-        }`}
+            ? "border-primary/50 bg-accent"
+            : "border-border bg-card hover:border-muted-foreground/40",
+        )}
       >
         <input
           type="file"
@@ -84,53 +88,51 @@ export default function Home() {
           multiple
           onChange={(e) => handleFiles(e.target.files)}
         />
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium">
           {busy ? "Processing…" : "Drop a PDF or image here, or click to upload"}
         </span>
-        <span className="mt-1 text-xs text-gray-400">
+        <span className="mt-1 text-xs text-muted-foreground">
           Synthetic samples live in <code>backend/samples/</code>
         </span>
       </label>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="mt-4 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
 
       <section className="mt-10">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Documents
         </h2>
         {docs.length === 0 ? (
-          <p className="text-sm text-gray-400">No documents yet.</p>
+          <p className="text-sm text-muted-foreground">No documents yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
-            {docs.map((d) => (
-              <li key={d.id}>
+          <Card className="p-0">
+            <CardContent className="divide-y p-0">
+              {docs.map((d) => (
                 <Link
+                  key={d.id}
                   href={`/review/${d.id}`}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-50"
+                  className="flex items-center justify-between px-4 py-3 transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-muted/50"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {d.filename}
-                    </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-sm font-medium">{d.filename}</p>
+                    <p className="text-xs text-muted-foreground">
                       #{d.id} · {new Date(d.created_at).toLocaleString()}
                     </p>
                   </div>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      STATUS_STYLES[d.status] ?? "bg-gray-100 text-gray-700"
-                    }`}
+                  <Badge
+                    variant="outline"
+                    className={cn(STATUS_STYLES[d.status] ?? STATUS_STYLES.uploaded)}
                   >
                     {d.status}
-                  </span>
+                  </Badge>
                 </Link>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </CardContent>
+          </Card>
         )}
       </section>
     </main>

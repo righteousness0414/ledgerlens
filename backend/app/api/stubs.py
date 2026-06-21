@@ -8,7 +8,7 @@ from app import models
 from app.db import get_db
 
 # Auth/RBAC and accounting-system sync are intentionally out of scope for the
-# PoC (see SPEC.md §4). These mock adapters return realistic shapes so the
+# PoC. These mock adapters return realistic shapes so the
 # end-to-end flow and the future integration surface are both visible.
 
 router = APIRouter(tags=["stubs"])

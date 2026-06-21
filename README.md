@@ -190,7 +190,6 @@ Interactive OpenAPI docs are served at `http://localhost:8000/docs`.
 ```
 ledgerlens/
 ├── README.md
-├── SPEC.md                  ← internal build spec
 ├── docker-compose.yml       ← optional postgres
 ├── backend/
 │   ├── app/
@@ -269,5 +268,3 @@ What turns this PoC into the SaaS in a typical brief (maps to a Phase-1 MVP):
 
 Builder & consultant based in Japan. I run a production version of this pipeline for a real business
 (private). Happy to do a live walkthrough of every line in this repo on a call.
-
-📧 righteousness0414@gmail.com

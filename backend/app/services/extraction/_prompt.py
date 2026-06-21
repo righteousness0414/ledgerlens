@@ -3,7 +3,7 @@ from __future__ import annotations
 # Shared extraction contract used by the vision-LLM providers (Claude / OpenAI).
 # Each field is returned as {value, confidence} so the model self-assesses, which
 # is one of the two signals the confidence engine combines (the other is
-# deterministic validation). See SPEC.md §7.
+# deterministic validation; see services/confidence.py).
 
 FIELD_KEYS = ["supplier", "invoice_number", "date", "currency", "subtotal", "vat", "total"]
 

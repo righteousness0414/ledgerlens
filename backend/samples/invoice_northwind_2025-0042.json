@@ -1,0 +1,36 @@
+{
+  "name": "invoice_northwind_2025-0042",
+  "supplier": "Northwind Office Supplies Ltd",
+  "invoice_number": "INV-2025-0042",
+  "date": "2025-03-14",
+  "currency": "GBP",
+  "subtotal": 1240.0,
+  "vat": 248.0,
+  "total": 1488.0,
+  "vat_rate": 0.2,
+  "line_items": [
+    {
+      "description": "Ergonomic chairs",
+      "qty": 4,
+      "unit_price": 180.0,
+      "amount": 720.0,
+      "confidence": 0.96
+    },
+    {
+      "description": "Standing desks",
+      "qty": 2,
+      "unit_price": 260.0,
+      "amount": 520.0,
+      "confidence": 0.95
+    }
+  ],
+  "_confidence": {
+    "supplier": 0.98,
+    "invoice_number": 0.72,
+    "date": 0.95,
+    "currency": 0.99,
+    "subtotal": 0.94,
+    "vat": 0.93,
+    "total": 0.95
+  }
+}

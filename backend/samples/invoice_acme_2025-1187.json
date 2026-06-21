@@ -1,0 +1,36 @@
+{
+  "name": "invoice_acme_2025-1187",
+  "supplier": "Acme Industrial GmbH",
+  "invoice_number": "INV-2025-1187",
+  "date": "2025-05-02",
+  "currency": "EUR",
+  "subtotal": 3200.0,
+  "vat": 615.0,
+  "total": 3808.0,
+  "vat_rate": 0.19,
+  "line_items": [
+    {
+      "description": "Steel brackets (box)",
+      "qty": 10,
+      "unit_price": 140.0,
+      "amount": 1400.0,
+      "confidence": 0.93
+    },
+    {
+      "description": "Industrial fasteners",
+      "qty": 1,
+      "unit_price": 1800.0,
+      "amount": 1800.0,
+      "confidence": 0.9
+    }
+  ],
+  "_confidence": {
+    "supplier": 0.97,
+    "invoice_number": 0.9,
+    "date": 0.94,
+    "currency": 0.98,
+    "subtotal": 0.92,
+    "vat": 0.88,
+    "total": 0.91
+  }
+}
